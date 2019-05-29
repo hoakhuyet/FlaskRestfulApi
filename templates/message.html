@@ -1,0 +1,124 @@
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Demo Chat Server</title>
+	<link type="text/css" href="static/include/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link type="text/css" href="static/include/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+	<link type="text/css" href="static/include/css/theme.css" rel="stylesheet">
+	<link type="text/css" href="static/include/images/icons/css/font-awesome.css" rel="stylesheet">
+	<link type="text/css" href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet'>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script>
+var _user = '{{ result }}';
+$(document).ready(function () {
+  $('#contents').append("\n");
+  $('#submit').click(function(){
+    var msg = document.getElementById("message").value;
+    $.ajax({
+      url: 'http://192.168.88.135:5000/message',
+		  type: 'GET',  // http method
+		  data: jQuery.param({ user: _user, message : msg}),
+      contentType: "application/json",
+      dataType: 'json',
+			success: function (data, status, xhr) {
+        var message = JSON.stringify(data);
+
+			},
+			error: function (jqXhr, textStatus, errorMessage) {
+				$('p').append('Error: ' + errorMessage);
+			}
+		});
+  });
+});
+
+setInterval(ajaxCall, 1000);
+var idms = 0;
+function ajaxCall() {
+  console.log("test");
+  $.ajax({
+      url: 'http://192.168.88.135:5000/getmessage',
+		  type: 'GET',  // http method
+		  data: jQuery.param({id_message: idms}),
+      contentType: "application/json",
+      dataType: 'json',
+			success: function (data, status, xhr) {
+        var message = JSON.stringify(data);
+        for(i = 0; i < data.length; i++) {
+          $('#contents').append(data[i].user + ":   " + data[i].message + "\n");
+        }
+        idms = data[data.length - 1].id;
+        data = null;
+			},
+			error: function (jqXhr, textStatus, errorMessage) {
+				$('p').append('Error: ' + errorMessage);
+			}
+		});
+}
+</script> 
+</head>
+<style>textarea{background: transparent;
+  color: black;
+  resize: none;
+  border: 0 none;}
+</style>
+<body>
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".navbar-inverse-collapse">
+					<i class="icon-reorder shaded"></i>
+				</a>
+			  	<a class="brand" href="index.html">
+			  		Demo Chat Server
+			  	</a>
+				<div class="nav-collapse collapse navbar-inverse-collapse">
+				
+					<ul class="nav pull-right">
+						<li><a href="#">
+							Logout
+						</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+<div class="wrapper">
+<div class="container">
+<div class="span11">
+	<div class="content">
+		<div class="module">
+			<div class="module-head">
+        <h3>message</h3>
+			</div>
+	    <div class="module-body">  
+			  <div class="control-group">
+          <div class="controls row-fluid">
+							<textarea name='contents' rows="15" class="span14" id="contents" >
+							</textarea>
+			    </div>
+         </div>     
+					<div class="control-group">
+					  <div class="controls row-fluid">
+						  <input type="text" id="message" class="span13" maxlength="160">
+					  </div>
+					</div>
+					<div class="module-foot">
+					  <div class="control-group">
+								<div class="controls clearfix">
+									<div class='icon'></div><button type="button" id="submit">Send</button>
+								</div>
+							</div>
+           </div> 
+						</div>   
+				</div>
+			</div>
+		</div>
+	<div class="footer">
+		<div class="container">
+		</div>
+	</div>
+</div>
+</div>
+</body>
+</html>
